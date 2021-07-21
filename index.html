@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>15 game</title>
+    <meta name="description" content="My template">
+    <style>
+        #table {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 100px auto 0;
+            border: 8px solid #8b7979;
+            border-radius: 4px;
+        }
+
+        #table span {
+            position: absolute;
+            display: block;
+            width: 96px;
+            height: 96px;
+            border-radius: 4px;
+            border: 3px solid #96862e;
+        }
+
+        #table span.number {
+            cursor: pointer;
+            font: bold 40px/100px Arial;
+            text-align: center;
+            text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.5);
+            color: rgb(24, 24, 24);
+        }
+
+        #table.animate span {
+            -webkit-transition: 0.3s left, 0.3s top;
+            transition: 0.3s left, 0.3s top;
+        }
+
+        #table span.empty {
+            background: transparent;
+        }
+    </style>
+</head>
+
+<body class="">
+    <div id="table"></div>
+    <button id = "restard"></button>
+    <script>
+
+        function GetRandomInt(min, max) {
+            return min + Math.floor(Math.random() * (max - min + 1));
+        }
+        function GetEmptyCell(target) {
+            const targetId = target.id.split('-')
+            let row = parseInt(targetId[0])
+            const col = parseInt(targetId[1])
+            if (row < 3) {
+                let cell = GetCell(row + 1, col)
+                if (cell.className === 'empty')
+                    return cell;
+            }
+            if (row > 0) {
+                let cell = GetCell(row - 1, col)
+                if (cell.className === 'empty')
+                    return cell;
+            }
+            if (col < 3) {
+                let cell = GetCell(row, col + 1)
+                if (cell.className === 'empty')
+                    return cell;
+            }
+            if (col > 0) {
+                let cell = GetCell(row, col - 1)
+                if (cell.className === 'empty')
+                    return cell;
+            }
+
+            return false;
+        }
+        function Move(cell) {
+            if (cell.className == "empty") return;
+            let emptyCell = GetEmptyCell(cell);
+            if (!emptyCell) return;
+            let tmp = { style: cell.style.cssText, id: cell.id };
+            cell.style.cssText = emptyCell.style.cssText;
+            cell.id = emptyCell.id;
+
+            emptyCell.style.cssText = tmp.style;
+            emptyCell.id = tmp.id;
+        }
+        function GetCell(row, col) {
+            return document.getElementById(parseInt(row) + '-' + parseInt(col))
+        }
+        function GameoverCheck() {
+            lastValue = 0;
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    let cur = document.getElementById(r + '-' + c).innerHTML;
+                    if (cur - lastValue == 1) {
+                        lastValue = cur;
+                    }
+                    else if (r == 3 && c == 3) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            //deck.className = 'animate';
+        }
+        function InitializationDesk() {
+            let num = [];
+            for (var i = 0; i < 16; i++) {
+                num.push(i + 1);
+            }
+            cur_num = 0;
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    let cell = document.createElement("span");
+                    cell.style.left = c * 100 + 'px';
+                    cell.style.top = r * 100 + 'px';
+                    cell.className = 'number';
+                    if (num[cur_num] == 16) {
+                        cell.className = "empty";
+                        cell.innerHTML = '';
+                    } else {
+                        cell.className = "number";
+                        cell.innerHTML = num[cur_num];
+                    }
+                    cur_num++;
+                    deck.appendChild(cell);
+                    cell.id = r + '-' + c;
+                }
+            }
+        }
+        function NewGame() {
+            let timer = 0;
+            let myInterval = setInterval(() => {
+                let cell = GetCell(GetRandomInt(0, 3), GetRandomInt(0, 3))
+                if (timer < 500) {
+                    deck.className = 'animate';
+                    Move(cell);
+                    timer++;
+                } else {
+                    clearInterval(myInterval);
+                }
+            }
+                , 1)
+        }
+        let deck = document.getElementById("table");
+        deck.className = 'animate';
+        deck.addEventListener('click', (e) => {
+            Move(e.target);
+            if (GameoverCheck()) {
+                if (confirm("wowowowow king in the castle")) {
+                    NewGame();
+                } else {
+                    window.close();
+                }
+            }
+        })
+
+        InitializationDesk();
+        NewGame();
+
+
+    </script>
+</body>
+
+</html>
